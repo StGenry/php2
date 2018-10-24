@@ -1,0 +1,11 @@
+{% extends "layouts/main.twig" %}
+{% block content %}
+
+<h1>CATALOG</h1>
+{% for product in products %}
+    <div class="product">
+        <strong>{{product.name}}</strong>. "<em>{{product.name}}"</em> - {{product.price}} руб.
+    </div>
+{% endfor %}
+
+{% endblock %}

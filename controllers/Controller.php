@@ -1,13 +1,21 @@
 <?php
 
 namespace app\controllers;
+use app\services\renderers as SR;
+use app\services\renderers\TemplateRenderer;
 
-class Controller
+abstract class Controller
 {
     public $action;
     public $defaultAction = 'index';
     public $layout = "main";
-    public $useLayout = true;
+//    public $useLayout = true;
+    public $useLayout = false;
+
+    public function __construct(SR\IRenderer $renderer)
+    {
+        $this->renderer = $renderer;
+    }
 
     public function run($action = null)
     {
@@ -31,10 +39,12 @@ class Controller
 
     public function renderTemplate($template, $params = [])
     {
-        ob_start();
-        extract($params);
-        include TEMPLATES_DIR . $template . ".php";
-        return ob_get_clean();
+        return $this->renderer->render($template, $params);
+
+        // ob_start();
+        // extract($params);
+        // include TEMPLATES_DIR . $template . ".php";
+        // return ob_get_clean();
     }
     
 }

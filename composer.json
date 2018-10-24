@@ -1,0 +1,16 @@
+{
+    "name": "nikolaenko/gb",
+    "description": "php2",
+    "authors": [{
+        "name": "StGenry",
+        "email": "st.genry@gmail.com"
+    }],
+    "require": {
+        "twig/twig": "2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "app\\": ""
+        }
+    }
+}

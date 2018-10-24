@@ -1,5 +1,5 @@
 <?php /** @var \app\models\Product $model */?>
 
-<h1><?=$model->name?></h1>
-<p><?=$model->description?></p>
+<h1><?=$product->name?></h1>
+<p><?=$product->description?></p>
 

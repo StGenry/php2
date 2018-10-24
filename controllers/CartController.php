@@ -9,6 +9,11 @@ use app\models\Cart;
 
 class CartController extends Controller
 {
+    public function __construct(IRenderer $renderer)
+    {
+        parent::__construct($renderer);
+    }
+
     public function actionIndex()
     {
         echo "emptyCart";

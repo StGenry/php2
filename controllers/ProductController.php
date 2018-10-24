@@ -5,54 +5,26 @@ namespace app\controllers;
 
 
 use app\models as MD;
+use app\services\renderers as SR;
 
-class ProductController
+class ProductController extends Controller
 {
-    private $action;
-    private $defaultAction = 'index';
-    private $layout = "main";
-    private $useLayout = true;
-
-    public function run($action = null)
+    public function __construct(SR\IRenderer $renderer)
     {
-        $this->action = $action?: $this->defaultAction;
-        $method = "action" . ucfirst($this->action);
-        if(method_exists($this, $method)){
-            $this->$method();
-        }else{
-            echo "404";
-        }
-
+        parent::__construct($renderer);
     }
 
     public function actionIndex()
     {
-        echo "catalog";
+        $products = (new MD\Product())->getAll();
+        echo $this->render("catalog", ['products' => $products]);
     }
 
     public function actionCard()
     {
         $id = $_GET['id'];
-        $model = (new MD\Product())->getOne($id);
-        //$model = Product::getOne($id);
-         echo $this->render("card", ['model' => $model]);
-    }
-
-    public function render($template, $params = [])
-    {
-        if($this->useLayout){
-            $content = $this->renderTemplate($template, $params);
-            return $this->renderTemplate("layouts/{$this->layout}", ['content' => $content]);
-        }
-        return $this->renderTemplate($template, $params);
-    }
-
-    public function renderTemplate($template, $params = [])
-    {
-        ob_start();
-        extract($params);
-        include TEMPLATES_DIR . $template . ".php";
-        return ob_get_clean();
+        $product = (new MD\Product())->getOne($id);
+        echo $this->render("card", ['product' => $product]);
     }
     
 }
