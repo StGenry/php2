@@ -1,31 +1,37 @@
 <?php
-namespace app\models;
 
+
+namespace app\models\repositories;
+
+
+use app\models\DataEntity;
 use app\services\Db;
 
-abstract class Model implements IModel
+abstract class Repository implements IRepository
 {
     private $db;
-    // public $tableColumnNames = null;
 
     public function __construct() {
-        $this->db = Db::getInstance();
+        $this->db = static::getDb();
+    }
+
+    private static function getDb() {
+        return Db::getInstance();
     }
 
     public function getOne($id) {
-        $table = $this->getTableName();
+        $table = static::getTableName();
         $sql = "SELECT * FROM {$table} WHERE id = :id";
-        return $this->db->queryObject($sql, [':id' => $id], get_called_class());
+        return static::getDb()->queryObject($sql, [':id' => $id], $this->getEntityClass());
     }
 
     public function getAll() {
-        $table = $this->getTableName();
+        $table = static::getTableName();
         $sql = "SELECT * FROM {$table}";
-        return $this->db->queryAll($sql, $this->getClassName());
+        return static::getDb()->queryAll($sql, $this->getEntityClass());
     }
 
-    public function getColumnNames()
-    {
+    public function getColumnNames() {
         // if (!is_null($this->$tableColumnNames)) { // TODO: здесь оптимизация не получилась, додумать если останется время
         //     return $this->$tableColumnNames;
         // }
@@ -35,15 +41,13 @@ abstract class Model implements IModel
         return $this->db->getColumnNames($this->getTableName());
     }
 
-    public function delete()
-    {
+    public function delete() {
         $table = $this->getTableName();
         $sql = "DELETE FROM {$table} WHERE id = :id";
         $this->db->execute($sql, [':id' => $this->id]);
     }
 
-    public function insert()
-    {
+    public function insert() {
         $columns = [];
         $params = [];
         
@@ -56,14 +60,12 @@ abstract class Model implements IModel
         $placeholders = implode(", ", array_keys($params));
 
         $table = $this->getTableName();
-        // INSERT INTO products (id, name, description) VALUES (:id, :name, :descritpion)
         $sql = "INSERT INTO `{$table}` ({$columns}) VALUES ({$placeholders})";
         $this->db->execute($sql, $params);
         $this->id = $this->db->lastInsertId();
     }
 
-    public function update()
-    {
+    public function update() {
         $columns = [];
         $params = [':id' => $this->id];
         
@@ -91,4 +93,5 @@ abstract class Model implements IModel
             $this->insert();
         }
     }
+
 }

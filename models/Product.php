@@ -1,7 +1,7 @@
 <?php
 namespace app\models;
 
-class Product extends Model
+class Product extends DataEntity
 {
     public $id;
     public $name;
@@ -9,14 +9,6 @@ class Product extends Model
     public $producerId;
     public $image_path;
     public $price;
-
-    public function getTableName(){
-        return 'products';
-    }
-
-    public function getClassName() {
-        return __CLASS__;
-    }
 
     // public function add(){
         

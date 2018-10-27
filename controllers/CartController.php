@@ -4,8 +4,10 @@
 namespace app\controllers;
 
 
-use app\models as MD;
-use app\models\Cart;
+use app\models\repositories\CartRepository;
+use app\models\repositories\ProductRepository;
+use app\services\Request;
+use app\services\renderers\IRenderer;
 
 class CartController extends Controller
 {
@@ -21,13 +23,15 @@ class CartController extends Controller
 
     public function actionCart()
     {
-        $id = $_GET['id']; // userID по которому будет осуществляться фильтр товаров в корзине
+        $this->useLayout = false;
+        $id = (new Request())->get('id');
+
         $productList = [];
         $cartTotal = 0;
         
-        $cartData = (new MD\Cart())->getAll(); // TODO: реализовать отбор по userID
+        $cartData = (new CartRepository())->getAll(); // TODO: реализовать отбор по userID
         foreach ($cartData as $key => $item) {
-            $productChars = (new MD\Product())->getOne($item->productID); // TODO: реализовать нормальный JOIN вместо запроса в цикле
+            $productChars = (new ProductRepository())->getOne($item->productID); // TODO: реализовать нормальный JOIN вместо запроса в цикле
             $total = $item->qty * $productChars->price;
             $productList[] = [
                 'id' => $item->id, 

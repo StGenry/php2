@@ -1,7 +1,7 @@
 <?php
 namespace app\models;
 
-class Order extends Model
+class Order extends DataEntity
 {
     public $id;
     public $address;
@@ -13,30 +13,9 @@ class Order extends Model
     public $state;
     public $products;
 
-    public function getTableName() {
-        return 'orders';
-    }
-
-    public function getClassName() {
-        return __CLASS__;
-    }
-    
-    public function getQueryFields()
+    public function __construct()
     {
-        return [':name' => $this->name
-            , ':address' => $this->address
-            , ':tel' => $this->tel
-            , ':recipientName' => $this->recipientName
-            , ':paymentMethod' => $this->paymentMethod
-            , ':deliveryMethod' => $this->deliveryMethod
-            , ':sum' => $this->sum
-        ];
+        $this->MyNewProperty = NULL;
     }
-
-    public function getDeleteQueryFilter()
-    {
-        return [':id' => $this->id];
-    }
-
 
 }

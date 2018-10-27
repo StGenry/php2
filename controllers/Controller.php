@@ -1,7 +1,7 @@
 <?php
 
 namespace app\controllers;
-use app\services\renderers as SR;
+use app\services\renderers\IRenderer;
 use app\services\renderers\TemplateRenderer;
 
 abstract class Controller
@@ -12,7 +12,12 @@ abstract class Controller
 //    public $useLayout = true;
     public $useLayout = false;
 
-    public function __construct(SR\IRenderer $renderer)
+    protected $renderer = null;
+
+    /**
+     * Controller constructor.
+     */
+    public function __construct(IRenderer $renderer)
     {
         $this->renderer = $renderer;
     }
@@ -24,7 +29,7 @@ abstract class Controller
         if(method_exists($this, $method)){
             $this->$method();
         } else {
-            echo "404";
+            throw new \Exception("Метод для обработки action не существует");
         }
     }
 
@@ -40,11 +45,6 @@ abstract class Controller
     public function renderTemplate($template, $params = [])
     {
         return $this->renderer->render($template, $params);
-
-        // ob_start();
-        // extract($params);
-        // include TEMPLATES_DIR . $template . ".php";
-        // return ob_get_clean();
     }
     
 }

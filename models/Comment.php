@@ -1,18 +1,10 @@
 <?php
 namespace app\models;
 
-class Comment extends Model
+class Comment extends DataEntity
 {
     public $id;
     public $name;
     public $text;
     
-    public function getTableName(){
-        return 'comments';
-    }
-
-    public function getClassName() {
-        return __CLASS__;
-    }
-
 }
