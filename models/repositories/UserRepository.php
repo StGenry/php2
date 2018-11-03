@@ -13,4 +13,19 @@ class UserRepository extends Repository
     public function getEntityClass() {
         return User::class;
     }
+
+    function getUserByLoginPass($login, $pass) {
+        return $this->find(
+            "SELECT * FROM {$this->getTableName()} 
+                WHERE login = :login AND password = :password"
+                , [':login' => $login, ':password' => $password]);
+    }
+    
+    function userExists($login) {
+        return !empty($this->find(
+            "SELECT * FROM {$this->getTableName()} 
+                WHERE login = :login"
+                , [':login' => $login]));
+    }
+    
 }

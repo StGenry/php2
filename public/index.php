@@ -1,31 +1,19 @@
 <?php
-// Иван Николаенко 2018-10-27
-include $_SERVER['DOCUMENT_ROOT'] . "/config/main.php";
-require $_SERVER['DOCUMENT_ROOT'] . "/vendor/autoload.php";
+// Иван Николаенко 2018-10-31
+$config = include $_SERVER['DOCUMENT_ROOT'] . "/config/main.php";
+include $_SERVER['DOCUMENT_ROOT'] . "/vendor/autoload.php";
 
-use app\models as ML;
-use app\services as SV;
-use Composer\Autoload as CA;
+\app\base\App::call()->run($config);
 
-$request = new \app\services\Request();
+$productRep = new \app\models\repositories\ProductRepository();
 
-$controllerName = $request->getControllerName() ?: DEFAULT_CONTROLLER;
-$actionName = $request->getActionName();
+$product = new \app\models\Product();
+//$product->id = 22;
+$product->name = "Булочка";
+$product->description = "с корицей";
+$product->producerId = 100;
+$product->image_path = "bulochka.jpg";
+$product->price = 500;
+$productRep->save($product);
 
-$controllerClass = CONTROLLERS_NAMESPACE . "\\" . ucfirst($controllerName) . "Controller";
-
-if(class_exists($controllerClass)){
-
-    $controller = new $controllerClass(
-        // new SV\renderers\TwigRenderer()
-        new SV\renderers\TemplateRenderer()
-    );
-    try {
-       $controller->run($actionName);
-    } catch (\Exception $e) {
-        (new ExceptionController(
-            new SV\renderers\TemplateRenderer()
-            ))->show404();
-    } 
-
-}
+//(new \app\services\Session())->set("userID", 1);

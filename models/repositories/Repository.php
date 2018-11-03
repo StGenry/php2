@@ -6,6 +6,7 @@ namespace app\models\repositories;
 
 use app\models\DataEntity;
 use app\services\Db;
+use app\base\App;
 
 abstract class Repository implements IRepository
 {
@@ -15,44 +16,51 @@ abstract class Repository implements IRepository
         $this->db = static::getDb();
     }
 
-    private static function getDb() {
-        return Db::getInstance();
+    private static function getDb(){
+        return App::call()->db;
     }
 
     public function getOne($id) {
         $table = static::getTableName();
         $sql = "SELECT * FROM {$table} WHERE id = :id";
-        return static::getDb()->queryObject($sql, [':id' => $id], $this->getEntityClass());
+        $foundData = $this->find($sql, [':id' => $id]);
+        return empty($foundData) ? false : $foundData[0];
+        // return $this->db->queryObject($sql, [':id' => $id], $this->getEntityClass());
     }
 
     public function getAll() {
         $table = static::getTableName();
         $sql = "SELECT * FROM {$table}";
-        return static::getDb()->queryAll($sql, $this->getEntityClass());
+        //return $this->find($sql, [])[0];
+        return $this->db->queryAll($sql, $this->getEntityClass());
     }
 
     public function getColumnNames() {
-        // if (!is_null($this->$tableColumnNames)) { // TODO: здесь оптимизация не получилась, додумать если останется время
-        //     return $this->$tableColumnNames;
-        // }
-
-        // $this->$tableColumnNames = $this->db->getColumnNames($this->getTableName());
-        // return $this->$tableColumnNames;
         return $this->db->getColumnNames($this->getTableName());
     }
 
-    public function delete() {
-        $table = $this->getTableName();
-        $sql = "DELETE FROM {$table} WHERE id = :id";
-        $this->db->execute($sql, [':id' => $this->id]);
+    public function getTableColumns() {
+        if (!is_null($this::$tableColumns)) {
+            return $this::$tableColumns;
+        }
+
+        $this::$tableColumns = $this->db->getColumnNames($this->getTableName());
+        return $this::$tableColumns;
     }
 
-    public function insert() {
+    public function delete(DataEntity $entity) {
+        $table = $this->getTableName();
+        $sql = "DELETE FROM {$table} WHERE id = :id";
+        $this->db->execute($sql, [':id' => $entity->id]);
+    }
+
+    public function insert(DataEntity $entity) {
         $columns = [];
         $params = [];
         
         foreach ($this->getColumnNames() as $key => $attr) {
-            $params[":{$attr}"] = $this->{$attr};
+        //foreach ($this->getTableColumns() as $key => $attr) {
+            $params[":{$attr}"] = $entity->{$attr};
             $columns[] = "`{$attr}`";
         }
 
@@ -65,15 +73,16 @@ abstract class Repository implements IRepository
         $this->id = $this->db->lastInsertId();
     }
 
-    public function update() {
+    public function update(DataEntity $entity) {
         $columns = [];
-        $params = [':id' => $this->id];
+        $params = [':id' => $entity->id];
         
         foreach ($this->getColumnNames() as $key => $attr) {
-            if (is_null($this->{$attr})) { // чтобы реквизиты не перезатирались, если не были заполнены
+        //foreach ($this->getTableColumns() as $key => $attr) {
+                if (is_null($entity->{$attr})) { // чтобы реквизиты не перезатирались, если не были заполнены
                 continue;
             }
-            $params[":{$attr}"] = $this->{$attr};
+            $params[":{$attr}"] = $entity->{$attr};
             $columns[] = "{$attr} = :{$attr}";
         }
 
@@ -86,12 +95,16 @@ abstract class Repository implements IRepository
         $this->id = $this->db->lastInsertId();
     }
 
-    public function save() {
-        if ($this->getOne($this->id)) {
-            $this->update();
+    public function save(DataEntity $entity) {
+        if (isset($entity->id) && $this->getOne($entity->id)) {
+            $this->update($entity);
         } else {
-            $this->insert();
+            $this->insert($entity);
         }
     }
 
+    public function find($sql, $params)
+    {
+        return $this->db->queryObjects($sql, $params, $this->getEntityClass());
+    }
 }

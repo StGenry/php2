@@ -3,11 +3,12 @@
 
 namespace app\services\renderers;
 
+use app\base\App;
 
 class TemplateRenderer implements IRenderer
 {
     public static function getTemplateFolder() {
-        return TEMPLATES_DIR;
+        return App::call()->config['templatesDir'];
     }
     
     public static function getTemplateExtention() {

@@ -24,7 +24,7 @@ class OrderController extends Controller
     public function actionOrder()
     {
         $this->useLayout = false;
-        $id = (new Request())->get('id'); // TODO: доработать класс работы с БД на выборку с фильтром (чтобы отбирать по userID)
+        $id = App::call()->request->get('id'); // TODO: доработать класс работы с БД на выборку с фильтром (чтобы отбирать по userID)
         
         $order = (new OrderRepository())->getOne($id);
         echo $this->render("order", ['order' => $order]);

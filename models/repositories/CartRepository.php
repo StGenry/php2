@@ -13,4 +13,9 @@ class CartRepository extends Repository
     public function getEntityClass() {
         return Cart::class;
     }
+
+    public function getCartByUserId($userID){
+        return $this->find("SELECT * FROM {$this->getTableName()} WHERE userID = :userID", [':userID' => $userID]);
+    }
+
 }

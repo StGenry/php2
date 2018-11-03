@@ -4,6 +4,7 @@ namespace app\models;
 class Order extends DataEntity
 {
     public $id;
+    public $userName;
     public $address;
     public $tel;
     public $recipientName;

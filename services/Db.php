@@ -7,18 +7,23 @@ use app\models\Product as MD;
 
 class Db
 {
-    use TSingleton;
-
     private $config = [
-        'driver' => 'mysql',
-        'host' => 'localhost',
-        'login' => 'root',
-        'password' => '',
-        'database' => 'gb_db',
-        'charset' => 'utf8'
     ];
 
     protected $conn = null;
+
+    /**
+     * Db constructor.
+     */
+    public function __construct($driver, $host, $login, $password, $database, $charset = "utf8")
+    {
+        $this->config['driver'] = $driver;
+        $this->config['host'] = $host;
+        $this->config['login'] = $login;
+        $this->config['password'] = $password;
+        $this->config['database'] = $database;
+        $this->config['charset'] = $charset;
+    }
 
     protected function getConnection()
     {
@@ -31,18 +36,12 @@ class Db
 
             $this->conn->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
         }
-
+        
         return $this->conn;
     }
 
-    // "SELECT * FROM products WHERE id = :id"  0 OR 1 = 1
-
-    /*
-     * [ ':id' => 1]
-     */
     private function query(string $sql, array $params = [])
     {
-        /** @var \PDOStatement $pdoStatement */
         $pdoStatement = $this->getConnection()->prepare($sql);
         $pdoStatement->execute($params);
         return $pdoStatement;
@@ -53,15 +52,20 @@ class Db
         return $this->queryAll($sql, $params)[0];
     }
 
-    public function queryObject($sql, $params = [], $class)
+    public function queryObjects($sql, $params = [], $class)
     {
         $smtp = $this->query($sql, $params);
         $smtp->setFetchMode(\PDO::FETCH_CLASS, $class);
-        return $smtp->fetch();
+        return $smtp->fetchAll();
+    }
+
+    public function queryObject($sql, $params = [], $class)
+    {
+        return $this->queryObjects($sql, $params, $class)[0];
     }
 
     public function queryAll(string $sql, string $className, array $params = [])
-    {
+    {   
         //return $this->query($sql, $params)->fetchAll();
         return $this->query($sql, $params)->fetchAll(\PDO::FETCH_CLASS, $className);
     }
@@ -97,48 +101,3 @@ class Db
         );
     }
 }
-
-
-
-// <?php
-// namespace app\services;
-
-// class Db implements IDb
-// {
-//     private $conn = null;
-//     private $host = null;
-//     private $user = null;
-//     private $password = null;
-//     private $name = null;
-    
-//     public function __construct(string $host = 'localhost', string $user = 'root', string $password = '', string $name = 'gb_db')
-//     {
-//         $this->host = $host;
-//         $this->user = $user;
-//         $this->password = $password;
-//         $this->name = $name;
-//     }
-
-//     protected function getConnection(){
-//         if(is_null($this->$conn)){
-//             $this->$conn = mysqli_connect($this->host, $this->user, $this->password, $this->name);
-//         }
-//         return $this->$conn;
-//     }
-    
-//     protected function execute(string $sql){
-//         return mysqli_query($this->getConnection(), $sql);
-//     }
-    
-//     public function closeConnection(){
-//         return mysqli_close($this->getConnection());
-//     }
-    
-//     public function queryAll(string $sql): array{
-//         return mysqli_fetch_all($this->execute($sql), MYSQLI_ASSOC);
-//     }
-    
-//     public function queryOne(string $sql): array{
-//         return mysqli_fetch_array($this->execute($sql), MYSQLI_ASSOC);
-//     }
-//  }
