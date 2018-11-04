@@ -1,5 +1,5 @@
 <?php
-namespace models;
+namespace app\models;
 use app\services\Request;
 use app\services\Session;
 use app\models\repositories\UserRepository;
@@ -21,21 +21,16 @@ class User extends DataEntity
         return (new \app\models\repositories\UserRepository())->save($this);
     }
 
-    public function login() {
+    public function login($login, $password) {
         $message = '';
-        $request = new Request();
-        if($request->isPost()){
-            $login = $request->post('login');
-            $password = $request->post('password');
-            if($user = (new Repository)->getUserByLoginPass($login, $password)){
-                $session = new Session();
-                $session->set('user_id', $user->id);
-                $session->set('user_name', $user->name);
-                $session->set('user_login', $user->login);
-                return ["result" => false];
-            }
-            $message = "Неправильный логин/пароль!";
+        if($user = (new UserRepository)->getUserByLoginPass($login, $password)){
+            $session = new Session();
+            $session->set('user_id', $user->id);
+            $session->set('user_name', $user->name);
+            $session->set('user_login', $user->login);
+            return ["result" => true, "data" => $user];
         }
-        return ["result" => true, "message" => $message];
+        $message = "Неправильный логин/пароль!";
+        return ["result" => false, "data" => $message];
     }
 }

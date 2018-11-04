@@ -19,7 +19,43 @@ class UserController extends Controller
 
     public function actionIndex()
     {
-        echo 'register';
+        echo $this->render("login", ['message' => ""]);
+    }
+
+    /**
+     * Авторизация
+     *
+     * @return void
+     */
+    public function actionLogin()
+    {
+        $this->useLayout = false;
+        $request = new Request();
+        if($request->isPost()) {
+            $login = (new User)->login($request->post('login'), $request->post('password'));
+            if ($login["result"]) {
+                echo $this->render("cabinet", ['user' => $login["data"]]);
+            } else {
+                echo $this->render("login", ['message' => $login["data"]]);
+            }
+            exit;
+        }
+        echo $this->render("login", ['message' => ""]);
+    }
+
+    public function actionCabinet()
+    {
+        // TODO: если не залогинен перекинуть на страницу логина (проверить)
+        
+        $session = new Session();
+        $userLogin = $session->get('user_login');
+        $userName = $session->get('user_name');
+        if(!$user_id = $session->get('user_id')){
+             echo $this->render("login", ['message' => ""]);
+        }
+                
+        echo $this->render("Cabinet", ['name' => $userName, 'login' => $userLogin]);
+
     }
 
     public function actionRegister()
@@ -29,33 +65,4 @@ class UserController extends Controller
         // TODO:доделать регистрацию
         echo $this->render("register", ['message' => ""]);
     }
-
-    public function actionLogin()
-    {
-        $this->useLayout = false;
-
-        $login = (new User)->login();
-        if ($login["result"]) {
-            echo $this->render("cabinet", ['user' => $login["user"]]);
-        } else {
-            echo $this->render("login", ['message' => $login["data"]]);
-        }
-    }
-
-    public function actionCabinet()
-    {
-        // TODO: если не залогинен перекинуть на страницу логина (проверить)
-        
-        $session = new Session();
-        $userID = $session->get('user_id');
-        $userLogin = $session->get('user_login');
-        $userName = $session->get('user_name');
-        if(!$user_id = $session->get('user_id')){
-             echo $this->render("login", ['message' => ""]);
-        }
-                
-        echo $this->render("Cabinet", ['name' => $session->get('user_login'), 'login' => $session->get('user_name')]);
-
-    }
-
 }

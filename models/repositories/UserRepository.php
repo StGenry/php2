@@ -14,11 +14,13 @@ class UserRepository extends Repository
         return User::class;
     }
 
-    function getUserByLoginPass($login, $pass) {
-        return $this->find(
+    function getUserByLoginPass($login, $password) {
+        $foundData = $this->find(
             "SELECT * FROM {$this->getTableName()} 
                 WHERE login = :login AND password = :password"
                 , [':login' => $login, ':password' => $password]);
+        
+        return empty($foundData) ? false : $foundData[0];
     }
     
     function userExists($login) {
